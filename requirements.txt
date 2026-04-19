@@ -4,3 +4,5 @@ numpy
 opencv-python-headless
 cadquery
 gunicorn
+trimesh
+shapely
