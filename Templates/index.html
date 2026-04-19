@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ECODOT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:      #F5F2EC;
+      --surface: #FDFBF7;
+      --ink:     #1A1814;
+      --muted:   #8A8278;
+      --accent:  #2D5016;
+      --accent2: #5A8A2A;
+      --border:  #DDD8CF;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--ink); font-family: 'DM Mono', monospace; min-height: 100vh; }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--bg); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 3rem; height: 60px;
+    }
+    .nav-logo {
+      font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.4rem;
+      letter-spacing: -0.03em; cursor: pointer; display: flex; align-items: center;
+    }
+    .nav-logo em { color: var(--accent); font-style: italic; }
+    .nav-logo img { height: 36px; width: auto; display: block; }
+    .nav-logo .logo-fallback { display: none; }
+    .nav-tabs { display: flex; list-style: none; }
+    .nav-tabs button {
+      background: none; border: none; font-family: 'DM Mono', monospace;
+      font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); padding: 0 1.4rem; height: 60px; cursor: pointer;
+      transition: color 0.2s; position: relative;
+    }
+    .nav-tabs button::after {
+      content: ''; position: absolute; bottom: 0; left: 1.4rem; right: 1.4rem;
+      height: 2px; background: var(--accent); transform: scaleX(0); transition: transform 0.25s;
+    }
+    .nav-tabs button:hover { color: var(--ink); }
+    .nav-tabs button.active { color: var(--accent); }
+    .nav-tabs button.active::after { transform: scaleX(1); }
+
+    /* PAGES */
+    .page { display: none; animation: fadeUp 0.35s ease; }
+    .page.active { display: block; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+
+    /* SHARED */
+    .section-label { font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem; }
+
+    /* ── HOME ── */
+    .hero {
+      padding: 6rem 3rem 5rem;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-eyebrow { font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.2rem; }
+    .hero-title { font-family: 'Fraunces', serif; font-size: clamp(2.8rem,5vw,4.5rem); font-weight: 700; line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 1.5rem; }
+    .hero-title em { color: var(--accent); font-style: italic; font-weight: 300; }
+    .hero-body { font-size: 1rem; line-height: 1.8; color: var(--muted); max-width: 480px; margin-bottom: 2rem; }
+    .hero-cta {
+      background: var(--accent); color: #fff; font-family: 'DM Mono', monospace;
+      font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 0.9rem 2rem; border-radius: 3px; border: none; cursor: pointer; transition: background 0.2s;
+    }
+    .hero-cta:hover { background: #3d6b1e; }
+    .hero-right {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+      background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
+    }
+    .hero-stat { background: var(--surface); padding: 2rem 1.5rem; display: flex; flex-direction: column; gap: 0.4rem; }
+    .hero-stat-num { font-family: 'Fraunces', serif; font-size: 2.2rem; font-weight: 600; color: var(--accent); line-height: 1; }
+    .hero-stat-label { font-size: 0.65rem; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; line-height: 1.4; }
+
+    .mission {
+      padding: 5rem 3rem; display: grid; grid-template-columns: 1fr 2fr; gap: 4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .mission-title { font-family: 'Fraunces', serif; font-size: 1.8rem; font-weight: 600; line-height: 1.2; letter-spacing: -0.02em; }
+    .mission-title em { color: var(--accent); font-style: italic; }
+    .mission-body { font-size: 0.98rem; line-height: 1.9; color: #4A4640; }
+    .mission-body p+p { margin-top: 1rem; }
+
+    .products-section { padding: 5rem 3rem; border-bottom: 1px solid var(--border); }
+    .products-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1px;
+      background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
+    }
+    .product-card { background: var(--surface); padding: 2.5rem 2rem; cursor: pointer; transition: background 0.2s; }
+    .product-card:hover { background: #f0ede6; }
+    .product-icon { font-size: 2rem; margin-bottom: 1.2rem; display: block; }
+    .product-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 0.6rem; }
+    .product-desc { font-size: 0.88rem; line-height: 1.7; color: var(--muted); }
+
+    .problematica { padding: 5rem 3rem; background: var(--ink); color: #F5F2EC; }
+    .problematica .section-label { color: var(--accent2); }
+    .problematica-title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem,3vw,2.8rem); font-weight: 600; letter-spacing: -0.02em; margin-bottom: 3rem; line-height: 1.15; }
+    .problematica-title em { color: var(--accent2); font-style: italic; }
+    .stats-row {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1px;
+      background: #333; border: 1px solid #333; border-radius: 4px; overflow: hidden; margin-bottom: 3rem;
+    }
+    .stat-block { background: #242220; padding: 2rem 1.8rem; }
+    .stat-big { font-family: 'Fraunces', serif; font-size: 2.5rem; font-weight: 700; color: var(--accent2); line-height: 1; margin-bottom: 0.5rem; }
+    .stat-desc { font-size: 0.86rem; line-height: 1.6; color: #9A9590; letter-spacing: 0.04em; }
+    .economia-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem; }
+    .economia-card { border: 1px solid #333; border-radius: 4px; padding: 2rem; }
+    .economia-card h3 { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; margin-bottom: 0.8rem; color: #F5F2EC; }
+    .economia-card p { font-size: 0.88rem; line-height: 1.8; color: #9A9590; }
+
+    /* ── CONVERTIDOR ── */
+    .convertidor-wrap { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 60px); }
+    .panel-left { padding: 3rem; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 1.5rem; }
+    .panel-right { padding: 3rem; display: flex; flex-direction: column; gap: 1.5rem; }
+    .panel-title { font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 0.25rem; }
+    .panel-sub { font-size: 0.72rem; color: var(--muted); line-height: 1.6; }
+    textarea {
+      width: 100%; min-height: 180px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1.2rem; font-family: 'DM Mono', monospace; font-size: 0.9rem;
+      color: var(--ink); resize: vertical; outline: none; transition: border-color 0.2s; line-height: 1.6;
+    }
+    textarea:focus { border-color: var(--accent); }
+    textarea::placeholder { color: var(--muted); }
+    .braille-text {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
+      padding: 1.2rem; font-size: 1.4rem; line-height: 2; color: var(--accent);
+      min-height: 80px; word-break: break-all; letter-spacing: 0.1em;
+    }
+    .braille-text.empty { color: var(--muted); font-size: 0.78rem; display: flex; align-items: center; }
+    .btn-row { display: flex; gap: 0.75rem; }
+    button.btn-primary {
+      background: var(--accent); color: #fff; font-family: 'DM Mono', monospace;
+      font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.75rem 1.5rem; border: none; border-radius: 3px; cursor: pointer; flex: 1; transition: background 0.18s;
+    }
+    button.btn-primary:hover { background: #3d6b1e; }
+    button.btn-primary:disabled { opacity: 0.4; cursor: default; }
+    button.btn-secondary {
+      background: transparent; border: 1px solid var(--border); color: var(--ink);
+      font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.75rem 1.5rem; border-radius: 3px; cursor: pointer; flex: 1; transition: all 0.18s;
+    }
+    button.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .image-frame {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
+      min-height: 280px; display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .image-frame img { max-width: 100%; max-height: 440px; display: block; image-rendering: crisp-edges; }
+    .placeholder { text-align: center; color: var(--muted); }
+    .placeholder .dots { font-size: 2rem; color: var(--border); letter-spacing: 0.3em; display: block; margin-bottom: 0.6rem; }
+    .placeholder p { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    .spinner { width: 26px; height: 26px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .eco-card { display: flex; align-items: center; gap: 1rem; background: var(--surface); border: 1px solid var(--accent); border-radius: 4px; padding: 1rem 1.4rem; animation: fadeUp 0.4s ease; }
+    .eco-icon { font-size: 1.8rem; color: var(--accent); line-height: 1; }
+    .eco-headline { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; color: var(--accent); line-height: 1.2; }
+    .eco-sub { font-size: 0.65rem; color: var(--muted); margin-top: 0.2rem; letter-spacing: 0.04em; }
+    .download-area { display: none; flex-direction: column; gap: 0.75rem; }
+    .download-area.visible { display: flex; }
+    .download-btn {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.9rem 1.2rem; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; cursor: pointer; transition: border-color 0.18s, background 0.18s;
+      text-decoration: none; color: var(--ink);
+    }
+    .download-btn:hover { border-color: var(--accent); background: #f0ede6; }
+    .download-btn .dl-label { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; }
+    .download-btn .dl-desc { font-size: 0.63rem; color: var(--muted); margin-top: 0.1rem; }
+    .download-btn .dl-icon { font-size: 1rem; color: var(--accent); }
+    .stl-btn .stl-spinner { display: none; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    .stl-btn.loading .dl-icon { display: none; }
+    .stl-btn.loading .stl-spinner { display: block; }
+    .status { font-size: 0.67rem; letter-spacing: 0.08em; color: var(--muted); text-align: right; min-height: 1rem; }
+    .status.error { color: #c0392b; }
+    .status.ok { color: var(--accent); }
+
+    /* ── PRODUCT PAGES ── */
+    .product-hero {
+      padding: 5rem 3rem 4rem; border-bottom: 1px solid var(--border);
+      display: grid; grid-template-columns: 1.2fr 1fr; gap: 4rem; align-items: start;
+    }
+    .product-hero-eyebrow { font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
+    .product-hero-title { font-family: 'Fraunces', serif; font-size: clamp(2rem,4vw,3.2rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 1.2rem; }
+    .product-hero-title em { color: var(--accent); font-style: italic; font-weight: 300; }
+    .product-hero-body { font-size: 0.98rem; line-height: 1.9; color: #4A4640; }
+    .product-hero-aside { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+    .aside-item { background: var(--surface); padding: 1.4rem 1.6rem; }
+    .aside-item-label { font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
+    .aside-item-value { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; }
+
+    .content-section { padding: 4rem 3rem; border-bottom: 1px solid var(--border); }
+    .content-section-title { font-family: 'Fraunces', serif; font-size: 1.4rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 2rem; line-height: 1.2; }
+    .content-section-title em { color: var(--accent); font-style: italic; }
+
+    .benefits-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+    .benefit-card { background: var(--surface); padding: 2rem 1.8rem; }
+    .benefit-icon { font-size: 1.6rem; margin-bottom: 0.8rem; display: block; }
+    .benefit-title { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .benefit-body { font-size: 0.88rem; line-height: 1.8; color: var(--muted); }
+
+    .catalog-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+    .catalog-item { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 2rem 1.5rem; text-align: center; transition: border-color 0.2s; }
+    .catalog-item:hover { border-color: var(--accent); }
+    .catalog-item-icon { font-size: 2.5rem; display: block; margin-bottom: 1rem; }
+    .catalog-item-name { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
+    .catalog-item-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+    .catalog-badge { display: inline-block; margin-top: 0.8rem; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid var(--border); color: var(--muted); padding: 0.2rem 0.6rem; border-radius: 100px; }
+
+    .process-steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+    .process-step { background: var(--surface); padding: 2rem 1.5rem; }
+    .step-num { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 700; color: var(--border); line-height: 1; margin-bottom: 0.8rem; }
+    .step-title { font-family: 'Fraunces', serif; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.4rem; }
+    .step-body { font-size: 0.84rem; line-height: 1.7; color: var(--muted); }
+
+    .dino-layout { display: grid; grid-template-columns: 1fr 1.4fr; gap: 3rem; align-items: start; }
+    .dino-img-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1.5rem; display: flex; align-items: center; justify-content: center; }
+    .dino-placeholder { width: 100%; max-width: 360px; border-radius: 4px; }
+    .dino-badge { display: inline-block; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid var(--accent); color: var(--accent); padding: 0.25rem 0.7rem; border-radius: 100px; margin-bottom: 1rem; }
+    .dino-name { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 1rem; }
+    .dino-desc { font-size: 0.95rem; line-height: 1.9; color: #4A4640; margin-bottom: 0.8rem; }
+    .dino-specs { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 1.5rem; }
+
+    .torre-layout { display: grid; grid-template-columns: 1fr 1.6fr; gap: 3rem; align-items: start; }
+    .torre-img-wrap { display: flex; align-items: center; justify-content: center; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 2rem; }
+    .torre-img { max-width: 100%; max-height: 520px; object-fit: contain; display: block; }
+    .torre-body { font-size: 0.95rem; line-height: 1.9; color: #4A4640; margin-bottom: 1.2rem; }
+    .torre-specs { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 1.5rem; }
+    .spec-item { background: var(--surface); padding: 1rem 1.2rem; }
+    .spec-label { font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.25rem; }
+    .spec-value { font-family: 'Fraunces', serif; font-size: 0.88rem; font-weight: 600; color: var(--ink); }
+
+    footer {
+      background: var(--ink);
+      border-top: none;
+      padding: 0;
+    }
+    .footer-inner {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 2.5rem 3rem;
+      gap: 2rem;
+      border-top: 1px solid #2A2720;
+    }
+    .footer-logo {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 1.3rem;
+      letter-spacing: -0.03em;
+      color: #F5F2EC;
+    }
+    .footer-logo em { color: var(--accent2); font-style: italic; }
+    .footer-tagline {
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #5A5550;
+      margin-top: 0.3rem;
+    }
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+    }
+    .footer-links span {
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #5A5550;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .footer-links span:hover { color: var(--accent2); }
+    .footer-copy {
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #3A3730;
+      text-align: right;
+    }
+
+    @media (max-width: 800px) {
+      nav { padding: 0 1rem; }
+      .nav-tabs button { padding: 0 0.7rem; font-size: 0.58rem; }
+      .hero, .mission, .convertidor-wrap, .product-hero { grid-template-columns: 1fr; gap: 2rem; }
+      .hero, .mission, .content-section, .products-section, .problematica, .panel-left, .panel-right { padding: 2rem 1.5rem; }
+      .products-grid, .stats-row, .benefits-grid, .catalog-grid, .process-steps, .economia-grid, .torre-layout, .torre-specs, .dino-layout, .dino-specs { grid-template-columns: 1fr; }
+      .panel-left { border-right: none; border-bottom: 1px solid var(--border); }
+      .footer-inner { grid-template-columns: 1fr; text-align: center; }
+      .footer-links { justify-content: center; }
+      .footer-copy { text-align: center; }
+    }
+
+    /* ── EJEMPLO MAP SECTION ── */
+    .ejemplo-section { border-top: 1px solid var(--border); padding: 4rem 3rem; background: var(--surface); }
+    .ejemplo-inner { display: grid; grid-template-columns: 1fr 1.4fr; gap: 3rem; align-items: center; max-width: 1100px; }
+    .ejemplo-titulo { font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 0.8rem; }
+    .ejemplo-desc { font-size: 0.88rem; line-height: 1.8; color: #4A4640; }
+    .ejemplo-dl-btn {
+      display: inline-block; margin-top: 1.2rem;
+      background: var(--accent); color: #fff;
+      font-family: 'DM Mono', monospace; font-size: 0.72rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.75rem 1.5rem; border-radius: 3px;
+      text-decoration: none; transition: background 0.2s;
+    }
+    .ejemplo-dl-btn:hover { background: #3d6b1e; }
+    .ejemplo-img-wrap { position: relative; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+    .ejemplo-img { width: 100%; display: block; }
+    .ejemplo-badge {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(26,24,20,0.7); color: #F5F2EC;
+      font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.5rem 0.8rem; text-align: center;
+    }
+
+    /* ── CROQUIS ── */
+    .croquis-wrap { display: grid; grid-template-columns: 380px 1fr; min-height: calc(100vh - 60px); }
+    .croquis-left { padding: 2.5rem; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 1.5rem; overflow-y: auto; }
+    .croquis-right { padding: 2.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
+
+    .upload-area {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.5rem; border: 1.5px dashed var(--border); border-radius: 4px;
+      padding: 2rem; cursor: pointer; transition: border-color 0.2s, background 0.2s;
+      background: var(--surface);
+    }
+    .upload-area:hover { border-color: var(--accent); background: #f0ede6; }
+    .upload-area.has-file { border-color: var(--accent); border-style: solid; }
+    .upload-icon { font-size: 1.5rem; color: var(--muted); }
+    .upload-text { font-size: 0.72rem; letter-spacing: 0.08em; color: var(--muted); text-align: center; }
+
+    .slider-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
+    .slider-label { font-size: 0.68rem; letter-spacing: 0.06em; color: var(--muted); min-width: 90px; }
+    .slider { flex: 1; accent-color: var(--accent); }
+
+    .marcador-input-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .num-input {
+      width: 70px; padding: 0.6rem 0.8rem; border: 1px solid var(--border); border-radius: 3px;
+      font-family: 'DM Mono', monospace; font-size: 0.85rem; background: var(--surface);
+      color: var(--ink); outline: none; text-align: center;
+    }
+    .num-input:focus { border-color: var(--accent); }
+    #btn-modo-marcador { flex: 1; }
+    #btn-modo-marcador.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    .marcadores-lista { display: flex; flex-direction: column; gap: 0.4rem; max-height: 160px; overflow-y: auto; }
+    .marcadores-empty { font-size: 0.7rem; color: var(--muted); font-style: italic; padding: 0.5rem 0; }
+    .marcador-item {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 3px;
+      padding: 0.4rem 0.8rem; font-size: 0.72rem;
+    }
+    .marcador-item .m-num { font-family: 'Fraunces', serif; font-weight: 600; color: var(--accent); margin-right: 0.5rem; }
+    .marcador-item .m-del { cursor: pointer; color: var(--muted); font-size: 0.9rem; }
+    .marcador-item .m-del:hover { color: #c0392b; }
+
+    .croquis-canvas-wrap {
+      position: relative; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; min-height: 320px; display: flex; align-items: center;
+      justify-content: center; overflow: hidden;
+    }
+    .croquis-canvas-wrap canvas { display: block; }
+
+    .croquis-info { margin-top: 0.5rem; }
+    .croquis-specs { display: grid; grid-template-columns: repeat(2,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+
+    .progreso-outer { background: var(--border); border-radius: 100px; height: 8px; overflow: hidden; margin-bottom: 0.5rem; }
+    .progreso-bar { height: 100%; background: var(--accent); border-radius: 100px; transition: width 0.4s ease; }
+    .progreso-footer { display: flex; justify-content: space-between; align-items: center; }
+    .progreso-label { font-size: 0.72rem; color: var(--muted); }
+    .progreso-pct { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; color: var(--accent); }
+
+    /* ── HIDROPONÍA ── */
+    .hidro-quote {
+      font-family: 'Fraunces', serif; font-size: 1.1rem; font-style: italic;
+      color: var(--accent); border-left: 3px solid var(--accent);
+      padding: 1rem 1.5rem; margin-top: 1.5rem; background: var(--surface);
+      border-radius: 0 4px 4px 0;
+    }
+    .componentes-grid {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 1px;
+      background: var(--border); border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
+    }
+    .componente-card { background: var(--surface); padding: 2rem 1.5rem; text-align: center; }
+    .componente-icon { font-size: 2rem; display: block; margin-bottom: 0.8rem; }
+    .componente-name { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
+    .componente-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+
+    @media (max-width: 800px) {
+      .croquis-wrap { grid-template-columns: 1fr; }
+      .croquis-left { border-right: none; border-bottom: 1px solid var(--border); }
+      .ejemplo-inner { grid-template-columns: 1fr; }
+      .componentes-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo" onclick="showPage('home')">
+    <img src="/static/logo_ecodot.jpg" alt="EcoDot" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"/>
+    <span class="logo-fallback">eco<em>dot</em></span>
+  </div>
+  <ul class="nav-tabs">
+    <li><button onclick="showPage('home')" class="active" id="tab-home">Inicio</button></li>
+    <li><button onclick="showPage('hidro')" id="tab-hidro">Hidroponía</button></li>
+    <li><button onclick="showPage('convertidor')" id="tab-convertidor">Convertidor</button></li>
+    <li><button onclick="showPage('croquis')" id="tab-croquis">Croquis Táctil</button></li>
+  </ul>
+</nav>
+
+<!-- ═══════════ HOME ═══════════ -->
+<div class="page active" id="page-home">
+
+  <section class="hero">
+    <div>
+      <div class="hero-eyebrow">Hermosillo, Sonora · México</div>
+      <h1 class="hero-title">Residuos que<br><em>transforman</em><br>vidas.</h1>
+      <p class="hero-body">ECODOT convierte plástico reciclado en estructuras de cultivo hidropónico y herramientas de accesibilidad Braille: desde torres de cultivo sin suelo hasta placas de texto táctil y croquis de mapas, impresos en 3D con filamento reciclado.</p>
+      <button class="hero-cta" onclick="showPage('convertidor')">Probar el convertidor Braille →</button>
+    </div>
+    <div class="hero-right">
+      <div class="hero-stat"><div class="hero-stat-num">3</div><div class="hero-stat-label">Líneas de producto activas</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">75%</div><div class="hero-stat-label">Filamento de PET reciclado en cada producto</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">90%</div><div class="hero-stat-label">Menos agua que la agricultura tradicional — gracias a la hidroponía</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">⠿</div><div class="hero-stat-label">Braille — placas táctiles y croquis de mapas impresos en 3D</div></div>
+    </div>
+  </section>
+
+  <section class="mission">
+    <div>
+      <div class="section-label">Quiénes somos</div>
+      <h2 class="mission-title">Diseño con<br><em>propósito</em><br>social.</h2>
+    </div>
+    <div class="mission-body">
+      <p>ECODOT nace de una pregunta sencilla: ¿qué pasaría si cada botella de plástico que termina en el suelo de Hermosillo pudiera convertirse en algo que mejora la vida de alguien?</p>
+      <p>Trabajamos en el cruce entre impresión 3D, economía circular y accesibilidad. Recolectamos botellas PET a través de convenios con escuelas, campañas de recolección comunitaria y el apoyo de organizaciones civiles sin fines de lucro. Las convertimos en filamento y las imprimimos en productos con impacto real: torres de cultivo hidropónico que permiten cosechar sin suelo y con agua reutilizada, y herramientas Braille táctiles para personas con discapacidad visual.</p>
+      <p>Cada gramo de plástico que usamos es una botella que no llega al basurero. Cada producto que sale de nuestra impresora lleva esa historia.</p>
+    </div>
+  </section>
+
+  <section class="products-section">
+    <div class="section-label" style="margin-bottom:2rem;">Nuestras líneas de producto</div>
+    <!-- Hidroponía primero, sola -->
+    <div style="margin-bottom:1px;">
+      <div class="products-grid" style="grid-template-columns:1fr; margin-bottom:1px;">
+        <div class="product-card" onclick="showPage('hidro')" style="display:grid;grid-template-columns:auto 1fr;gap:1.5rem;align-items:center;">
+          <span class="product-icon" style="font-size:3rem;margin:0;">🌱</span>
+          <div>
+            <div class="product-name" style="font-size:1.3rem;">Cultivos Hidropónicos</div>
+            <p class="product-desc">Torres de cultivo sin suelo impresas en 3D con PET reciclado. Cosecha en casa, sin tierra, sin plagas, con agua reutilizada constantemente. Nuestra propuesta para convertir el plástico en agricultura sostenible.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Braille y Croquis debajo -->
+    <div class="products-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="product-card" onclick="showPage('convertidor')">
+        <span class="product-icon">⠿</span>
+        <div class="product-name">Braille ECODOT</div>
+        <p class="product-desc">Convierte cualquier texto en una placa Braille táctil lista para imprimir en 3D con PET reciclado. Rápido, preciso y accesible.</p>
+      </div>
+      <div class="product-card" onclick="showPage('croquis')">
+        <span class="product-icon">🗺</span>
+        <div class="product-name">Croquis Táctil</div>
+        <p class="product-desc">Sube un mapa o plano y conviértelo en una placa táctil en relieve. Ideal para parques, edificios y espacios públicos accesibles.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="problematica">
+    <div class="section-label">La problemática</div>
+    <h2 class="problematica-title">Hermosillo tiene un<br><em>problema de plástico.</em><br>Nosotros tenemos una respuesta.</h2>
+    <div class="stats-row">
+      <div class="stat-block">
+        <div class="stat-big">900 ton</div>
+        <div class="stat-desc">de basura plástica generadas en Hermosillo cada día</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-big">40%</div>
+        <div class="stat-desc">del plástico fabricado es de un solo uso, según datos de la PROFECO</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-big">BPA</div>
+        <div class="stat-desc">El Bisfenol A presente en plásticos actúa como disruptor hormonal, afectando la reproducción y el sistema inmune</div>
+      </div>
+    </div>
+    <div class="economia-grid">
+      <div class="economia-card">
+        <h3>¿Qué es la economía circular?</h3>
+        <p>A diferencia del modelo lineal "producir, usar, tirar", la economía circular propone que los materiales nunca dejen de tener valor. El plástico no es basura: es materia prima esperando una segunda vida. En ECODOT ese principio es la base de todo lo que hacemos.</p>
+      </div>
+      <div class="economia-card">
+        <h3>¿Cómo recolectamos las botellas?</h3>
+        <p>Trabajamos con múltiples fuentes: convenios con escuelas, campañas de recolección comunitaria y el apoyo de organizaciones civiles sin fines de lucro. Cualquier canal que mantenga el plástico fuera del basurero y dentro del ciclo productivo nos interesa.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ═══════════ CONVERTIDOR ═══════════ -->
+<div class="page" id="page-convertidor">
+  <div class="convertidor-wrap">
+    <div class="panel-left">
+      <div>
+        <div class="panel-title">Convertidor Braille</div>
+        <div class="panel-sub">Escribe tu texto y genera una placa Braille lista para imprimir en 3D con filamento PET reciclado.</div>
+      </div>
+      <div>
+        <div class="section-label">Texto a convertir</div>
+        <textarea id="input" placeholder="Escribe aquí tu texto…&#10;Puedes usar varias líneas."></textarea>
+      </div>
+      <div>
+        <div class="section-label">Símbolo Braille</div>
+        <div class="braille-text empty" id="braille-preview">— aquí aparecerá la traducción —</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-primary" id="btn-convertir">Convertir</button>
+        <button class="btn-secondary" id="btn-limpiar">Limpiar</button>
+      </div>
+      <div class="status" id="status"></div>
+    </div>
+    <div class="panel-right">
+      <div>
+        <div class="section-label">Vista previa</div>
+        <div class="image-frame" id="image-frame">
+          <div class="placeholder">
+            <span class="dots">⠿ ⠿ ⠿</span>
+            <p>La imagen aparecerá aquí</p>
+          </div>
+        </div>
+      </div>
+      <div class="eco-card" id="eco-card" style="display:none;">
+        <div class="eco-icon">♻</div>
+        <div>
+          <div class="eco-headline" id="eco-headline">—</div>
+          <div class="eco-sub" id="eco-sub">—</div>
+        </div>
+      </div>
+      <div class="download-area" id="download-area">
+        <div class="section-label">Descargar</div>
+        <a class="download-btn" id="btn-png" download="braille.png">
+          <div><div class="dl-label">Imagen PNG</div><div class="dl-desc">Vista previa lista para imprimir</div></div>
+          <span class="dl-icon">↓</span>
+        </a>
+        <div class="download-btn stl-btn" id="btn-stl">
+          <div><div class="dl-label">Modelo 3D — STL</div><div class="dl-desc">Para impresión 3D con marca ECODOT</div></div>
+          <span class="dl-icon">↓</span>
+          <div class="stl-spinner"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ CROQUIS TÁCTIL ═══════════ -->
+<div class="page" id="page-croquis">
+
+  <div class="croquis-wrap">
+    <div class="croquis-left">
+      <div class="panel-title">Croquis Táctil</div>
+      <div class="panel-sub">Sube un mapa o plano, ajusta la detección de bordes, coloca marcadores numéricos y genera un STL listo para imprimir.</div>
+
+      <div>
+        <div class="section-label">1 · Imagen del mapa</div>
+        <label class="upload-area" id="upload-label">
+          <input type="file" id="mapa-file" accept="image/*" style="display:none"/>
+          <span class="upload-icon">↑</span>
+          <span class="upload-text" id="upload-text">Haz clic o arrastra una imagen aquí</span>
+        </label>
+      </div>
+
+      <div>
+        <div class="section-label">2 · Nivel de detalle</div>
+        <div class="panel-sub" style="margin-bottom:0.75rem;">Más alto = solo líneas muy prominentes. Más bajo = captura más detalles.</div>
+        <div class="slider-row">
+          <label class="slider-label">Prominencia <span id="val-area">800</span></label>
+          <input type="range" min="100" max="5000" step="100" value="300" id="min-area" class="slider"/>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.62rem;color:var(--muted);margin-top:0.2rem;">
+          <span>más detalle</span><span>solo principales</span>
+        </div>
+        <button class="btn-secondary" id="btn-preview" style="width:100%;margin-top:0.75rem;">Ver preview de bordes</button>
+      </div>
+
+      <div>
+        <div class="section-label">3 · Marcadores numéricos</div>
+        <div class="panel-sub" style="margin-bottom:0.75rem;">Haz clic en el preview del mapa para colocar un número. Se añadirá en Braille en esa posición.</div>
+        <div class="marcador-input-row">
+          <input type="number" id="marcador-num" min="1" max="99" value="1" placeholder="Nº" class="num-input"/>
+          <button class="btn-secondary" id="btn-modo-marcador">📍 Modo colocar</button>
+        </div>
+        <div class="marcadores-lista" id="marcadores-lista">
+          <div class="marcadores-empty">Ningún marcador añadido aún</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">4 · Leyenda (opcional)</div>
+        <textarea id="leyenda-input" placeholder="Ej:&#10;1. Jardín de espera&#10;2. Sanitarios&#10;3. Kiosco" style="min-height:120px;"></textarea>
+        <div class="panel-sub" style="margin-top:0.4rem;">Se imprimirá en Braille debajo del mapa.</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" id="btn-gen-stl" disabled>Generar STL</button>
+        <button class="btn-secondary" id="btn-limpiar-croquis">Limpiar</button>
+      </div>
+      <div class="status" id="croquis-status"></div>
+    </div>
+
+    <div class="croquis-right">
+      <div class="section-label">Vista previa de bordes</div>
+      <div class="croquis-canvas-wrap" id="croquis-canvas-wrap">
+        <div class="placeholder">
+          <span class="dots">— —</span>
+          <p>Sube una imagen y presiona "Ver preview"</p>
+        </div>
+        <canvas id="mapa-canvas" style="display:none;cursor:crosshair;max-width:100%;"></canvas>
+      </div>
+
+      <div class="croquis-info" id="croquis-info" style="display:none;">
+        <div class="section-label">Información de la placa</div>
+        <div class="croquis-specs">
+          <div class="spec-item"><div class="spec-label">Botellas recicladas</div><div class="spec-value" id="info-botellas">—</div></div>
+          <div class="spec-item"><div class="spec-label">Marcadores</div><div class="spec-value" id="info-marcadores">0</div></div>
+          <div class="spec-item"><div class="spec-label">Leyenda</div><div class="spec-value" id="info-leyenda">—</div></div>
+          <div class="spec-item"><div class="spec-label">Material</div><div class="spec-value">75% PET reciclado</div></div>
+        </div>
+        <div class="eco-card" id="eco-card-croquis" style="margin-top:0.75rem;">
+          <div class="eco-icon">♻</div>
+          <div>
+            <div class="eco-headline" id="eco-headline-croquis">—</div>
+            <div class="eco-sub" id="eco-sub-croquis">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="progreso-wrap" style="display:none;">
+        <div class="section-label">Generando STL</div>
+        <div class="progreso-outer">
+          <div class="progreso-bar" id="progreso-bar" style="width:0%"></div>
+        </div>
+        <div class="progreso-footer">
+          <span class="progreso-label" id="progreso-label">Iniciando...</span>
+          <span class="progreso-pct" id="progreso-pct">0%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ejemplo-section">
+    <div class="ejemplo-inner">
+      <div class="ejemplo-text">
+        <div class="section-label">Mapa de prueba</div>
+        <h3 class="ejemplo-titulo">¿Primera vez usando el croquis?</h3>
+        <p class="ejemplo-desc">Descarga esta imagen del <strong>Parque Madero</strong> en Hermosillo y úsala para probar el convertidor. Las líneas verdes están bien definidas y producen un resultado táctil limpio.</p>
+        <p class="ejemplo-desc" style="margin-top:0.6rem;">Mientras seguimos mejorando la detección para funcionar con cualquier tipo de mapa, este ejemplo garantiza un buen resultado desde el primer intento.</p>
+        <a href="/static/mapa_ejemplo.png" download="mapa_ejemplo_ecodot.png" class="ejemplo-dl-btn">
+          ↓ Descargar mapa de ejemplo
+        </a>
+      </div>
+      <div class="ejemplo-img-wrap">
+        <img src="/static/mapa_ejemplo.png" alt="Mapa de ejemplo — Parque Madero" class="ejemplo-img"/>
+        <div class="ejemplo-badge">Parque Madero · Hermosillo, Sonora</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════ HIDROPONÍA ═══════════ -->
+<div class="page" id="page-hidro">
+
+  <section class="product-hero">
+    <div>
+      <div class="product-hero-eyebrow">Línea de producto · Hidroponía</div>
+      <h1 class="product-hero-title">Plástico que<br><em>alimenta.</em></h1>
+      <p class="product-hero-body">Transformamos plásticos desechables de un solo uso en filamento para impresoras 3D, y con ese filamento imprimimos estructuras de cultivo hidropónico. El resultado: agricultura sostenible sin suelo, sin plagas y con agua reutilizada — fabricada desde residuos plásticos de Hermosillo.</p>
+      <div class="hidro-quote">"Proponemos convertir el plástico en agricultura sostenible."</div>
+    </div>
+    <div class="product-hero-aside">
+      <div class="aside-item">
+        <div class="aside-item-label">Material</div>
+        <div class="aside-item-value">Filamento PET reciclado</div>
+      </div>
+      <div class="aside-item">
+        <div class="aside-item-label">Suelo requerido</div>
+        <div class="aside-item-value">Ninguno</div>
+      </div>
+      <div class="aside-item">
+        <div class="aside-item-label">Agua</div>
+        <div class="aside-item-value">Reciclada constantemente</div>
+      </div>
+      <div class="aside-item">
+        <div class="aside-item-label">Plagas</div>
+        <div class="aside-item-value">Mínimas — sin suelo</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ventajas -->
+  <section class="content-section">
+    <div class="section-label">¿Por qué hidroponía?</div>
+    <h2 class="content-section-title">Cosechar sin tierra.<br><em>Sin plagas. Sin desperdicio.</em></h2>
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <span class="benefit-icon">🌍</span>
+        <div class="benefit-title">Sin suelo agrícola</div>
+        <p class="benefit-body">Los cultivos hidropónicos crecen suspendidos en agua con nutrientes. No necesitan tierra, lo que los hace ideales para zonas urbanas o áridas como Hermosillo.</p>
+      </div>
+      <div class="benefit-card">
+        <span class="benefit-icon">🐛</span>
+        <div class="benefit-title">Menos plagas</div>
+        <p class="benefit-body">La mayoría de patógenos y plagas proviene del suelo. Al eliminar el suelo del proceso, se reducen drásticamente las infecciones y se evita el uso de pesticidas.</p>
+      </div>
+      <div class="benefit-card">
+        <span class="benefit-icon">💧</span>
+        <div class="benefit-title">Agua reutilizada</div>
+        <p class="benefit-body">El sistema recircula el agua constantemente. Se usa hasta un 90% menos de agua que en agricultura convencional — clave en un estado con escasez hídrica.</p>
+      </div>
+      <div class="benefit-card">
+        <span class="benefit-icon">♻</span>
+        <div class="benefit-title">Estructura reciclada</div>
+        <p class="benefit-body">La torre de cultivo está impresa en 3D con filamento fabricado a partir de botellas PET recogidas en el Centro de Economía Circular de Hermosillo.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Prototipo -->
+  <section class="content-section">
+    <div class="section-label">El prototipo</div>
+    <h2 class="content-section-title">Torre de cultivo <em>ECODOT</em></h2>
+    <div class="dino-layout">
+      <div class="dino-img-wrap">
+        <img src="/static/torre_hidroponica.png" alt="Torre hidropónica ECODOT" class="dino-placeholder"/>
+      </div>
+      <div>
+        <span class="dino-badge">Prototipo funcional</span>
+        <div class="dino-name">Torre Hidropónica Vertical</div>
+        <p class="dino-desc">Estructura modular impresa en PET reciclado diseñada para cultivo hidropónico vertical. Cada módulo encaja sobre el siguiente, permitiendo escalar el sistema según el espacio disponible.</p>
+        <p class="dino-desc">El sistema incluye una bomba de agua sumergible, una cubeta como depósito y un timer para automatizar los ciclos de riego — todo compacto y de bajo consumo eléctrico.</p>
+        <div class="dino-specs">
+          <div class="spec-item"><div class="spec-label">Componentes</div><div class="spec-value">Base + Bomba + Cubeta + Timer</div></div>
+          <div class="spec-item"><div class="spec-label">Diseño</div><div class="spec-value">Modular vertical</div></div>
+          <div class="spec-item"><div class="spec-label">Material impreso</div><div class="spec-value">PET reciclado 75%</div></div>
+          <div class="spec-item"><div class="spec-label">Riego</div><div class="spec-value">Automatizado con timer</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Componentes -->
+  <section class="content-section" style="background:var(--surface);">
+    <div class="section-label">Componentes del prototipo</div>
+    <h2 class="content-section-title">Lo que necesita el <em>sistema</em></h2>
+    <div class="componentes-grid">
+      <div class="componente-card">
+        <span class="componente-icon">🏗</span>
+        <div class="componente-name">Base impresa</div>
+        <p class="componente-desc">Estructura modular vertical impresa en 3D con filamento PET reciclado. Permite el flujo de agua entre módulos.</p>
+      </div>
+      <div class="componente-card">
+        <span class="componente-icon">💦</span>
+        <div class="componente-name">Bomba</div>
+        <p class="componente-desc">Bombea el agua nutritiva desde la cubeta hasta la parte superior, irrigando cada módulo por gravedad.</p>
+      </div>
+      <div class="componente-card">
+        <span class="componente-icon">🪣</span>
+        <div class="componente-name">Cubeta</div>
+        <p class="componente-desc">Almacena la solución nutritiva y recibe el agua de retorno. Cierra el ciclo hidráulico del sistema.</p>
+      </div>
+      <div class="componente-card">
+        <span class="componente-icon">⏱</span>
+        <div class="componente-name">Timer</div>
+        <p class="componente-desc">Automatiza los ciclos de riego. La bomba solo trabaja los momentos necesarios, ahorrando energía.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Proceso -->
+  <section class="content-section">
+    <div class="section-label">Cómo funciona</div>
+    <h2 class="content-section-title">Del plástico al <em>cultivo</em></h2>
+    <div class="process-steps">
+      <div class="process-step">
+        <div class="step-num">01</div>
+        <div class="step-title">Recolección</div>
+        <p class="step-body">Botellas PET recogidas en el Centro de Economía Circular de Hermosillo.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">02</div>
+        <div class="step-title">Filamento</div>
+        <p class="step-body">El plástico se procesa y convierte en filamento utilizable para impresora 3D.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">03</div>
+        <div class="step-title">Impresión</div>
+        <p class="step-body">Se imprime la estructura modular de la torre hidropónica con ese filamento.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">04</div>
+        <div class="step-title">Cultivo</div>
+        <p class="step-body">Se ensambla el sistema y se inicia el cultivo sin suelo, con agua recirculada.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">eco<em>dot</em></div>
+      <div class="footer-tagline">Accesibilidad Braille · Hidroponía · Plástico reciclado · Hermosillo, Sonora</div>
+    </div>
+    <div class="footer-links">
+      <span onclick="showPage('home')">Inicio</span>
+      <span onclick="showPage('convertidor')">Convertidor</span>
+      <span onclick="showPage('croquis')">Croquis Táctil</span>
+      <span onclick="showPage('hidro')">Hidroponía</span>
+    </div>
+    <div class="footer-copy">© 2025 ECODOT</div>
+  </div>
+</footer>
+
+<script>
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    const tab = document.getElementById('tab-' + id);
+    if (tab) tab.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  const inputEl      = document.getElementById("input");
+  const brailleEl    = document.getElementById("braille-preview");
+  const imageFrame   = document.getElementById("image-frame");
+  const downloadArea = document.getElementById("download-area");
+  const btnPng       = document.getElementById("btn-png");
+  const btnStl       = document.getElementById("btn-stl");
+  const btnConvertir = document.getElementById("btn-convertir");
+  const btnLimpiar   = document.getElementById("btn-limpiar");
+  const statusEl     = document.getElementById("status");
+  let currentTexto   = "";
+
+  function setStatus(msg, type="") { statusEl.textContent = msg; statusEl.className = "status " + type; }
+
+  async function convertir() {
+    const texto = inputEl.value.trim();
+    if (!texto) { setStatus("Escribe algo primero.", "error"); return; }
+    currentTexto = texto;
+    btnConvertir.disabled = true;
+    setStatus("Convirtiendo…");
+    imageFrame.innerHTML = '<div class="spinner"></div>';
+    downloadArea.classList.remove("visible");
+    document.getElementById("eco-card").style.display = "none";
+    try {
+      const res  = await fetch("/convertir", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({texto}) });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      brailleEl.textContent = data.braille;
+      brailleEl.classList.remove("empty");
+      const src = "data:image/png;base64," + data.imagen;
+      imageFrame.innerHTML = `<img src="${src}" alt="Braille generado"/>`;
+      btnPng.href     = src;
+      btnPng.download = texto.trim().split(/\s+/).slice(0,4).join("_") + ".png";
+      const ecoCard = document.getElementById("eco-card");
+      const b = data.botellas, g = data.gramos;
+      let txt = b < 0.1 ? "una fracción de botella reciclada 🌱"
+              : b < 1   ? `~${Math.round(b*100)}% de una botella reciclada 🌱`
+              : `salvarás ${Math.round(b*10)/10} ${Math.round(b*10)/10===1?"botella":"botellas"} de plástico ♻`;
+      document.getElementById("eco-headline").textContent = txt;
+      document.getElementById("eco-sub").textContent = `Filamento estimado: ${g} g de PET · Botella 600ml ≈ 20g`;
+      ecoCard.style.display = "flex";
+      downloadArea.classList.add("visible");
+      setStatus("Listo ✓", "ok");
+    } catch(e) {
+      imageFrame.innerHTML = '<div class="placeholder"><span class="dots">⠿</span><p>Error al generar</p></div>';
+      setStatus("Error: " + e.message, "error");
+    } finally { btnConvertir.disabled = false; }
+  }
+
+  btnStl.addEventListener("click", async () => {
+    if (!currentTexto) return;
+    btnStl.classList.add("loading");
+    setStatus("Generando STL…");
+    try {
+      const res = await fetch("/stl", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({texto:currentTexto}) });
+      if (!res.ok) { const err = await res.json(); throw new Error(err.error||"Error"); }
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href = url; a.download = currentTexto.trim().split(/\s+/).slice(0,4).join("_") + ".stl"; a.click();
+      URL.revokeObjectURL(url);
+      setStatus("STL descargado ✓", "ok");
+    } catch(e) { setStatus("Error STL: " + e.message, "error"); }
+    finally { btnStl.classList.remove("loading"); }
+  });
+
+  btnConvertir.addEventListener("click", convertir);
+  btnLimpiar.addEventListener("click", () => {
+    inputEl.value = "";
+    brailleEl.textContent = "— aquí aparecerá la traducción —";
+    brailleEl.classList.add("empty");
+    imageFrame.innerHTML = '<div class="placeholder"><span class="dots">⠿ ⠿ ⠿</span><p>La imagen aparecerá aquí</p></div>';
+    downloadArea.classList.remove("visible");
+    currentTexto = "";
+    document.getElementById("eco-card").style.display = "none";
+    setStatus("");
+  });
+
+  // ══════════════════════════════
+  // CROQUIS TÁCTIL
+  // ══════════════════════════════
+  let mapaFile        = null;
+  let marcadores      = [];
+  let modoMarcador    = false;
+  let previewCargado  = false;
+  let canvasW         = 0;
+  let canvasH         = 0;
+
+  const mapaFileInput  = document.getElementById("mapa-file");
+  const uploadLabel    = document.getElementById("upload-label");
+  const uploadText     = document.getElementById("upload-text");
+  const minAreaInput   = document.getElementById("min-area");
+  const btnPreview     = document.getElementById("btn-preview");
+  const btnModo        = document.getElementById("btn-modo-marcador");
+  const btnGenStl      = document.getElementById("btn-gen-stl");
+  const marcadoresLista= document.getElementById("marcadores-lista");
+  const croquisCW      = document.getElementById("croquis-canvas-wrap");
+  const mapaCanvas     = document.getElementById("mapa-canvas");
+  const ctx            = mapaCanvas.getContext("2d");
+  const croquisSt      = document.getElementById("croquis-status");
+  const croquiInfo     = document.getElementById("croquis-info");
+
+  document.getElementById("val-area").textContent = minAreaInput.value;
+  minAreaInput.addEventListener("input", () => {
+    document.getElementById("val-area").textContent = minAreaInput.value;
+    if (mapaFile) btnPreview.click();
+  });
+
+  mapaFileInput.addEventListener("change", () => {
+    if (mapaFileInput.files[0]) {
+      mapaFile = mapaFileInput.files[0];
+      uploadText.textContent = mapaFile.name;
+      uploadLabel.classList.add("has-file");
+      previewCargado = false;
+      btnGenStl.disabled = true;
+    }
+  });
+
+  uploadLabel.addEventListener("dragover", e => { e.preventDefault(); uploadLabel.style.borderColor = "var(--accent)"; });
+  uploadLabel.addEventListener("dragleave", () => uploadLabel.style.borderColor = "");
+  uploadLabel.addEventListener("drop", e => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith("image/")) {
+      mapaFile = file; uploadText.textContent = file.name;
+      uploadLabel.classList.add("has-file"); previewCargado = false; btnGenStl.disabled = true;
+    }
+  });
+
+  btnPreview.addEventListener("click", async () => {
+    if (!mapaFile) { setCroquisSt("Primero sube una imagen.", "error"); return; }
+    setCroquisSt("Procesando bordes…");
+    btnPreview.disabled = true;
+    const fd = new FormData();
+    fd.append("imagen", mapaFile);
+    fd.append("min_area", minAreaInput.value);
+    try {
+      const res  = await fetch("/mapa/preview", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      const img    = new Image();
+      img.onload = () => {
+        mapaCanvas.width  = img.width;
+        mapaCanvas.height = img.height;
+        canvasW = img.width; canvasH = img.height;
+        ctx.drawImage(img, 0, 0);
+        dibujarMarcadores();
+        croquisCW.querySelector(".placeholder") && (croquisCW.querySelector(".placeholder").style.display = "none");
+        mapaCanvas.style.display = "block";
+        previewCargado = true;
+        btnGenStl.disabled = false;
+        actualizarInfoPlaca();
+        setCroquisSt("Preview listo. Haz clic para colocar marcadores.", "ok");
+      };
+      img.src = "data:image/png;base64," + data.preview;
+      window._previewBase64 = data.preview;
+      window._previewImg    = img;
+    } catch(e) {
+      setCroquisSt("Error: " + e.message, "error");
+    } finally {
+      btnPreview.disabled = false;
+    }
+  });
+
+  btnModo.addEventListener("click", () => {
+    modoMarcador = !modoMarcador;
+    btnModo.classList.toggle("active", modoMarcador);
+    mapaCanvas.style.cursor = modoMarcador ? "crosshair" : "default";
+    setCroquisSt(modoMarcador ? "Haz clic en el mapa para colocar el número." : "", modoMarcador ? "ok" : "");
+  });
+
+  mapaCanvas.addEventListener("click", (e) => {
+    if (!modoMarcador || !previewCargado) return;
+    const rect  = mapaCanvas.getBoundingClientRect();
+    const scaleX = mapaCanvas.width  / rect.width;
+    const scaleY = mapaCanvas.height / rect.height;
+    const px    = (e.clientX - rect.left) * scaleX;
+    const py    = (e.clientY - rect.top)  * scaleY;
+    const num   = parseInt(document.getElementById("marcador-num").value) || 1;
+    marcadores.push({ x_pct: px / canvasW, y_pct: py / canvasH, numero: num });
+    document.getElementById("marcador-num").value = num + 1;
+    renderizarMarcadores();
+    dibujarMarcadores();
+    actualizarInfoPlaca();
+  });
+
+  function dibujarMarcadores() {
+    if (!window._previewImg) return;
+    ctx.clearRect(0, 0, mapaCanvas.width, mapaCanvas.height);
+    ctx.drawImage(window._previewImg, 0, 0);
+    marcadores.forEach(m => {
+      const x = m.x_pct * canvasW;
+      const y = m.y_pct * canvasH;
+      ctx.beginPath();
+      ctx.arc(x, y, 12, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(45,80,22,0.85)";
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.font = "bold 11px monospace";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(m.numero, x, y);
+    });
+  }
+
+  function renderizarMarcadores() {
+    marcadoresLista.innerHTML = "";
+    if (marcadores.length === 0) {
+      marcadoresLista.innerHTML = '<div class="marcadores-empty">Ningún marcador añadido aún</div>';
+      return;
+    }
+    marcadores.forEach((m, i) => {
+      const div = document.createElement("div");
+      div.className = "marcador-item";
+      div.innerHTML = `<span><span class="m-num">${m.numero}</span>x:${Math.round(m.x_pct*100)}% y:${Math.round(m.y_pct*100)}%</span>
+                       <span class="m-del" data-i="${i}">✕</span>`;
+      marcadoresLista.appendChild(div);
+    });
+    marcadoresLista.querySelectorAll(".m-del").forEach(btn => {
+      btn.addEventListener("click", () => {
+        marcadores.splice(parseInt(btn.dataset.i), 1);
+        renderizarMarcadores();
+        dibujarMarcadores();
+        actualizarInfoPlaca();
+      });
+    });
+  }
+
+  function actualizarInfoPlaca() {
+    croquiInfo.style.display = "block";
+    const DENSIDAD_SUP   = 0.212;
+    const GRAMOS_BOTELLA = 20.0;
+    const ancho_cm = (150 + 10) / 10;
+    const ratio    = canvasH > 0 ? canvasH / canvasW : 0.75;
+    const alto_cm  = (150 * ratio + 10) / 10;
+    const gramos   = Math.round(ancho_cm * alto_cm * DENSIDAD_SUP * 10) / 10;
+    const botellas = Math.round(gramos / GRAMOS_BOTELLA * 100) / 100;
+    let bottleText = botellas < 0.1  ? "fracción de botella reciclada 🌱"
+                   : botellas < 1    ? `~${Math.round(botellas*100)}% de una botella 🌱`
+                   : `${Math.round(botellas*10)/10} ${botellas===1?"botella":"botellas"} de plástico ♻`;
+    document.getElementById("info-botellas").textContent   = `~${botellas}`;
+    document.getElementById("eco-headline-croquis").textContent = `salvarás ${bottleText}`;
+    document.getElementById("eco-sub-croquis").textContent  = `Filamento estimado: ${gramos} g de PET · Botella 600ml ≈ 20g`;
+    document.getElementById("info-marcadores").textContent = marcadores.length;
+    const ley = document.getElementById("leyenda-input").value.trim();
+    document.getElementById("info-leyenda").textContent = ley ? `${ley.split("\n").length} líneas` : "Sin leyenda";
+  }
+
+  document.getElementById("btn-limpiar-croquis").addEventListener("click", () => {
+    mapaFile       = null;
+    marcadores     = [];
+    modoMarcador   = false;
+    previewCargado = false;
+    canvasW = 0; canvasH = 0;
+    window._previewImg = null;
+    uploadText.textContent = "Haz clic o arrastra una imagen aquí";
+    uploadLabel.classList.remove("has-file");
+    mapaFileInput.value = "";
+    minAreaInput.value  = 800;
+    document.getElementById("val-area").textContent = "800";
+    document.getElementById("leyenda-input").value  = "";
+    document.getElementById("marcador-num").value   = 1;
+    marcadoresLista.innerHTML = '<div class="marcadores-empty">Ningún marcador añadido aún</div>';
+    btnModo.classList.remove("active");
+    mapaCanvas.style.display = "none";
+    ctx.clearRect(0, 0, mapaCanvas.width, mapaCanvas.height);
+    const ph = croquisCW.querySelector(".placeholder");
+    if (ph) ph.style.display = "";
+    croquiInfo.style.display = "none";
+    document.getElementById("progreso-wrap").style.display = "none";
+    btnGenStl.disabled = true;
+    setCroquisSt("", "");
+  });
+
+  document.getElementById("leyenda-input").addEventListener("input", () => {
+    if (previewCargado) actualizarInfoPlaca();
+  });
+
+  btnGenStl.addEventListener("click", async () => {
+    if (!mapaFile) return;
+    setCroquisSt("Iniciando generación...", "");
+    btnGenStl.disabled = true;
+    document.getElementById("progreso-wrap").style.display = "block";
+    setProgreso(0, "Enviando imagen...");
+    const fd = new FormData();
+    fd.append("imagen",     mapaFile);
+    fd.append("min_area",   minAreaInput.value);
+    fd.append("marcadores", JSON.stringify(marcadores));
+    fd.append("leyenda",    document.getElementById("leyenda-input").value);
+    try {
+      const res    = await fetch("/mapa/iniciar", { method: "POST", body: fd });
+      const data   = await res.json();
+      if (data.error) throw new Error(data.error);
+      const jobId  = data.job_id;
+      await new Promise((resolve, reject) => {
+        const es = new EventSource(`/mapa/progreso/${jobId}`);
+        es.onmessage = (e) => {
+          const d = JSON.parse(e.data);
+          if (d.pct === -1) {
+            es.close();
+            reject(new Error(d.msg));
+          } else {
+            setProgreso(d.pct, d.msg);
+            setCroquisSt(d.msg, "");
+            if (d.done) { es.close(); resolve(); }
+          }
+        };
+        es.onerror = () => { es.close(); reject(new Error("Conexión perdida")); };
+      });
+      setProgreso(100, "Descargando archivo...");
+      const a    = document.createElement("a");
+      a.href     = `/mapa/descargar/${jobId}`;
+      a.download = "mapa_tactil.stl";
+      a.click();
+      setCroquisSt("STL descargado ✓", "ok");
+      setProgreso(100, "¡Listo!");
+    } catch(e) {
+      setCroquisSt("Error: " + e.message, "error");
+      setProgreso(0, "Error");
+      document.getElementById("progreso-wrap").style.display = "none";
+    } finally {
+      btnGenStl.disabled = false;
+    }
+  });
+
+  function setProgreso(pct, msg) {
+    const bar   = document.getElementById("progreso-bar");
+    const label = document.getElementById("progreso-label");
+    const pctEl = document.getElementById("progreso-pct");
+    if (pct < 0) pct = 0;
+    bar.style.width   = pct + "%";
+    label.textContent = msg;
+    pctEl.textContent = pct + "%";
+  }
+
+  function setCroquisSt(msg, type="") {
+    croquisSt.textContent = msg;
+    croquisSt.className   = "status " + type;
+  }
+</script>
+</body>
+</html>
