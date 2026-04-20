@@ -160,40 +160,41 @@ def generar_stl(texto_braille):
 
     modelo = cq.Workplane("XY").box(ancho_base, alto_base, GROSOR_BASE)
 
-cilindros = []
+    # ✅ TODO ESTO VA DENTRO
+    cilindros = []
 
-for nl, linea in enumerate(lineas):
-    for idx, car in enumerate(linea):
-        x = -ancho_base/2 + margen + idx * paso_celda
-        y =  alto_base/2  - margen - nl  * paso_linea
-        for (f, c) in obtener_puntos(car):
-            cx, cy, cz = x + c*sep, y - f*sep, GROSOR_BASE/2
+    for nl, linea in enumerate(lineas):
+        for idx, car in enumerate(linea):
+            x = -ancho_base/2 + margen + idx * paso_celda
+            y =  alto_base/2  - margen - nl  * paso_linea
+            for (f, c) in obtener_puntos(car):
+                cx, cy, cz = x + c*sep, y - f*sep, GROSOR_BASE/2
 
-            cilindros.append(
-                cq.Workplane("XY")
-                .transformed(offset=(cx, cy, cz))
-                .cylinder(ALTURA_PUNTO, RADIO_PUNTO)
-                .val()
-            )
+                cilindros.append(
+                    cq.Workplane("XY")
+                    .transformed(offset=(cx, cy, cz))
+                    .cylinder(ALTURA_PUNTO, RADIO_PUNTO)
+                    .val()
+                )
 
-# unión masiva (MUCHO más rápido)
-if cilindros:
-    comp = cq.Compound.makeCompound(cilindros)
-    modelo = modelo.union(comp)
+    # unión masiva (rápida)
+    if cilindros:
+        comp = cq.Compound.makeCompound(cilindros)
+        modelo = modelo.union(comp)
 
-    for label, y_off in [("ECODOT", margen)]:
-        t = (
-            cq.Workplane("XY")
-            .transformed(offset=(0, -alto_base/2 + y_off, GROSOR_BASE/2))
-            .text(label, fontsize=6, distance=0.6, halign="center", valign="center")
-        )
-        modelo = modelo.union(t)
+    # texto
+    t = (
+        cq.Workplane("XY")
+        .transformed(offset=(0, -alto_base/2 + margen, GROSOR_BASE/2))
+        .text("ECODOT", fontsize=6, distance=0.6, halign="center", valign="center")
+    )
+    modelo = modelo.union(t)
 
     tmp = tempfile.NamedTemporaryFile(suffix=".stl", delete=False)
     tmp.close()
     cq.exporters.export(modelo, tmp.name)
-    return tmp.name
 
+    return tmp.name
 
 # -------------------------------------------------------
 # RUTAS
