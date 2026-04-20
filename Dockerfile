@@ -4,7 +4,11 @@ WORKDIR /app
 
 COPY . .
 
+# Install deps
 RUN pip install --no-cache-dir flask pillow numpy opencv-python-headless gunicorn
+
+# FIX PATH
+ENV PATH="/home/cq/.local/bin:$PATH"
 
 ENV PORT=10000
 
