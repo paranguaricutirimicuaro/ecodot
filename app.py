@@ -11,7 +11,7 @@ try:
     CADQUERY_OK = True
 except ImportError:
     CADQUERY_OK = False
-
+print("CADQUERY_OK:", CADQUERY_OK)
 app = Flask(__name__)
 
 # -------------------------------------------------------
