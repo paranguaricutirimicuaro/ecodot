@@ -405,22 +405,33 @@ def generar_stl_mapa_con_progreso(contornos, marcadores, leyenda_texto,
         if pts_mm[0] != pts_mm[-1]:
             pts_mm.append(pts_mm[0])
 
-        for i in range(len(pts_mm) - 1):
-            x1, y1 = pts_mm[i]
-            x2, y2 = pts_mm[i+1]
-            dx  = x2 - x1
-            dy  = y2 - y1
-            lng = math.sqrt(dx*dx + dy*dy)
-            if lng < 0.1:
-                continue
-            angulo = math.degrees(math.atan2(dy, dx))
-            seg = (
-                cq.Workplane("XY")
-                .transformed(offset=((x1+x2)/2, (y1+y2)/2, cz),
-                             rotate=(0, 0, angulo))
-                .box(lng, ancho_linea, altura_linea)
-            )
-            modelo = modelo.union(seg)
+      segmentos = []
+
+for i in range(len(pts_mm) - 1):
+    x1, y1 = pts_mm[i]
+    x2, y2 = pts_mm[i+1]
+    dx  = x2 - x1
+    dy  = y2 - y1
+    lng = math.sqrt(dx*dx + dy*dy)
+    if lng < 0.1:
+        continue
+
+    angulo = math.degrees(math.atan2(dy, dx))
+
+    seg = (
+        cq.Workplane("XY")
+        .transformed(offset=((x1+x2)/2, (y1+y2)/2, cz),
+                     rotate=(0, 0, angulo))
+        .box(lng, ancho_linea, altura_linea)
+        .val()
+    )
+
+    segmentos.append(seg)
+
+# 🔥 UNIÓN MASIVA (MUCHO MÁS RÁPIDA)
+if segmentos:
+    comp = cq.Compound.makeCompound(segmentos)
+    modelo = modelo.union(comp)
 
         pct = 5 + int(((idx + 1) / total) * 65)
         progress_cb(pct, f"Contorno {idx+1}/{total}...")
