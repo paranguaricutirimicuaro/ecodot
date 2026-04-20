@@ -160,18 +160,26 @@ def generar_stl(texto_braille):
 
     modelo = cq.Workplane("XY").box(ancho_base, alto_base, GROSOR_BASE)
 
-    for nl, linea in enumerate(lineas):
-        for idx, car in enumerate(linea):
-            x = -ancho_base/2 + margen + idx * paso_celda
-            y =  alto_base/2  - margen - nl  * paso_linea
-            for (f, c) in obtener_puntos(car):
-                cx, cy, cz = x + c*sep, y - f*sep, GROSOR_BASE/2
-                cilindro = (
-                    cq.Workplane("XY")
-                    .transformed(offset=(cx, cy, cz))
-                    .cylinder(ALTURA_PUNTO, RADIO_PUNTO)
-                )
-                modelo = modelo.union(cilindro)
+cilindros = []
+
+for nl, linea in enumerate(lineas):
+    for idx, car in enumerate(linea):
+        x = -ancho_base/2 + margen + idx * paso_celda
+        y =  alto_base/2  - margen - nl  * paso_linea
+        for (f, c) in obtener_puntos(car):
+            cx, cy, cz = x + c*sep, y - f*sep, GROSOR_BASE/2
+
+            cilindros.append(
+                cq.Workplane("XY")
+                .transformed(offset=(cx, cy, cz))
+                .cylinder(ALTURA_PUNTO, RADIO_PUNTO)
+                .val()
+            )
+
+# unión masiva (MUCHO más rápido)
+if cilindros:
+    comp = cq.Compound.makeCompound(cilindros)
+    modelo = modelo.union(comp)
 
     for label, y_off in [("ECODOT", margen)]:
         t = (
